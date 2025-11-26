@@ -2,9 +2,6 @@
   "profiles": {
     "ConsoleTimeTrackingApp": {
       "commandName": "Project"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker"
     }
   }
 }
