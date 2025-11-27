@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+	<GenerateDocumentationFile></GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1581</NoWarn>
     <DockerfileContext>.</DockerfileContext>
   </PropertyGroup>
 
