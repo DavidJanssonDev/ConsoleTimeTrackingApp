@@ -9,9 +9,12 @@ using System.Threading.Tasks;
 
 namespace Main
 {
-    public static class Program
+    using ConsoleTimeTrackingApp.Data;
+    using ConsoleTimeTrackingApp.UI;
+
+    internal static class Program
     {
-        public static void Main()
+        private static async Task Main()
         {
             using Database db = new();
             db.Database.EnsureCreated();
@@ -19,7 +22,9 @@ namespace Main
             ProjectRepository projectRepo = new(db);
             ShiftRepository shiftRepo = new(db);
 
-            var menu = new MenuSystem(projectRepo, shiftRepo);
+            MenuSystem menu = new(projectRepo, shiftRepo);
+            await menu.RunAsync();
         }
     }
+
 }

@@ -3,9 +3,9 @@ using Spectre.Console;
 
 namespace ConsoleTimeTrackingApp.UI;
 
-public class ShiftViews
+internal class ShiftViews
 {
-    public void RenderShiftsTable(IEnumerable<Shift> shifts)
+    public static void RenderShiftsTable(IEnumerable<Shift> shifts)
     {
         var table = new Table()
             .Border(TableBorder.Rounded)
@@ -20,7 +20,7 @@ public class ShiftViews
         {
             var duration = s.EndTime is null
                 ? "[grey]—[/]"
-                : s.Duration.ToString(@"hh\:mm");
+                : s.Duration.ToString(@"hh\:mm"); // uses computed Duration :contentReference[oaicite:12]{index=12}
 
             var projectName = s.EndTime is null
                 ? $"[yellow]{s.Project.Name}[/]"
