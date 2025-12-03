@@ -18,30 +18,20 @@ public class MenuSystem(IEnumerable<IMenuAction> menuActions)
     /// </summary>
     public async Task RunAsync()
     {
-        Console.WriteLine("HHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-        AnsiConsole.MarkupLine("[blue]Rendering Menu...[/]");
         while (_running)
         {
             RenderHeader();
             // Display menu and get selection
-            //var choice = AnsiConsole.Prompt(
-            //    new SelectionPrompt<IMenuAction>()
-            //        .Title("[cyan]Choose an action[/]")
-            //        .UseConverter(action => action.Title)
-            //        .AddChoices(_menuActions)
-            //);
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<IMenuAction>()
+                    .Title("[cyan]Choose an action[/]")
+                    .UseConverter(action => action.Title)
+                    .AddChoices(_menuActions)
+            );
             // Execute the selected action
-            //await choice.ExecuteAsync();
+            await choice.ExecuteAsync();
             // If a Quit action is implemented as IMenuAction that sets _running = false, handle that.
-            //if (choice is QuitCommand) _running = false;
-
-
-            foreach (var action in _menuActions)
-            {
-                Console.WriteLine($"Available: {action.Title}");
-            }
-            Console.ReadKey(true);
-
+            if (choice is QuitCommand) _running = false;
         }
     }
 

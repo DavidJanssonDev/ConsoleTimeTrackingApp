@@ -4,36 +4,36 @@ using TimeTracker.Infrastructre.Persistence;
 using TimeTracker.UI.Menu;
 
 
-namespace TimeTracker.UI
+namespace TimeTracker.UI;
+
+/// <summary>
+/// Entry point for the TimeTracker UI application.
+/// Configures services, ensures database creation, and runs the main menu system.
+/// </summary>
+public class Program
 {
-    internal class Program
+    /// <summary>
+    /// Main method to start the application.
+    /// </summary>
+    public static async Task Main()
     {
-        public static async Task Main()
-        {
-            ServiceCollection services = new();
-            services.AddDbContext<TimeTrackerDbContext>(options =>
+        ServiceCollection services = new();
+        services.AddDbContext<TimeTrackerDbContext>(options =>
             options.UseSqlite("Data Source=timetracking.db"));
 
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<IShiftRepository, ShiftRepository>();
+        services.AddScoped<IShiftService, ShiftService>();
 
-            services.AddScoped<IProjectRepository, ProjectRepository>();
-            services.AddScoped<IShiftRepository, ShiftRepository>();
-            services.AddScoped<IShiftService, ShiftService>();
+        services.AddTransient<IMenuAction, StartShiftCommand>();
+        services.AddTransient<IMenuAction, QuitCommand>();
+        services.AddTransient<MenuSystem>();
 
+        var provider = services.BuildServiceProvider();
+        var db = provider.GetRequiredService<TimeTrackerDbContext>();
+        db.Database.EnsureCreated();
 
-            services.AddTransient<IMenuAction, StartShiftCommand>();
-            services.AddTransient<IMenuAction, QuitCommand>();
-            // Add additional IMenuAction implementations here
-            services.AddTransient<MenuSystem>();
-
-
-            var provider = services.BuildServiceProvider();
-            var db = provider.GetRequiredService<TimeTrackerDbContext>();
-            db.Database.EnsureCreated();
-
-
-            var menu = provider.GetRequiredService<MenuSystem>();
-            await menu.RunAsync();
-            Console.ReadKey(true);
-        }
+        var menu = provider.GetRequiredService<MenuSystem>();
+        await menu.RunAsync();
     }
 }

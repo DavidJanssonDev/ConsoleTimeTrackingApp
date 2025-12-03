@@ -10,7 +10,19 @@
 		<Nullable>enable</Nullable>
 	    <NoWarn>$(NoWarn);1581</NoWarn>
         <DockerfileContext>.</DockerfileContext>
+        <StartupObject>TimeTracker.UI.Program</StartupObject>
     </PropertyGroup>
+	<ItemGroup>
+	  <Compile Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
+	  <Compile Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
+	  <Compile Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
+	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
+	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
+	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
+	  <None Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
+	  <None Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
+	  <None Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
+	</ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
@@ -27,16 +39,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="ConsoleTimeTrackingApp.Domain\Services\" />
-        <Folder Include="ConsoleTimeTrackingApp.Infrastructre\Plugins\" />
-        <Folder Include="ConsoleTimeTrackingApp.UI\Screens\" />
 	
         
-		<Using Include="TimeTracker.Domain.Interfaces"/>
-		<Using Include="TimeTracker.UI.Interfaces"/>
-		<Using Include="TimeTracker.Domain.Entities"/>
-		<Using Include="Microsoft.EntityFrameworkCore"/>
-		<Using Include="Spectre.Console"/>
+		<Using Include="TimeTracker.Domain.Interfaces" />
+		<Using Include="TimeTracker.UI.Interfaces" />
+		<Using Include="TimeTracker.Domain.Entities" />
+		<Using Include="Microsoft.EntityFrameworkCore" />
+		<Using Include="Spectre.Console" />
 	</ItemGroup>
 
 </Project>
