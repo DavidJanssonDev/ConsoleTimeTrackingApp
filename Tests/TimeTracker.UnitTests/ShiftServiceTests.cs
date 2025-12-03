@@ -1,4 +1,4 @@
-﻿using TimeTracker.Application.Services;
+﻿using TimeTracker.ApplicationCode.Services;
 using Xunit;
 
 namespace TimeTracker.Tests.ShiftServiceTests;

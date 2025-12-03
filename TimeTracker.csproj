@@ -11,26 +11,30 @@
 	    <NoWarn>$(NoWarn);1581</NoWarn>
         <DockerfileContext>.</DockerfileContext>
         <StartupObject>TimeTracker.UI.Program</StartupObject>
+		<RootNamespace></RootNamespace>
     </PropertyGroup>
+	
+	
+	
 	<ItemGroup>
-	  <Compile Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
-	  <Compile Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
-	  <Compile Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
-	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
-	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
-	  <EmbeddedResource Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
-	  <None Remove="ConsoleTimeTrackingApp.Domain\Services\**" />
-	  <None Remove="ConsoleTimeTrackingApp.Infrastructre\Plugins\**" />
-	  <None Remove="ConsoleTimeTrackingApp.UI\Screens\**" />
+	  <Compile Remove="TimeTracker.Domain\Services\**" />
+	  <Compile Remove="TimeTracker.Infrastructre\Plugins\**" />
+	  <Compile Remove="TimeTracker.UI\Screens\**" />
+	  <EmbeddedResource Remove="TimeTracker.Domain\Services\**" />
+	  <EmbeddedResource Remove="TimeTracker.Infrastructre\Plugins\**" />
+	  <EmbeddedResource Remove="TimeTracker.UI\Screens\**" />
+	  <None Remove="TimeTracker.Domain\Services\**" />
+	  <None Remove="TimeTracker.Infrastructre\Plugins\**" />
+	  <None Remove="TimeTracker.UI\Screens\**" />
 	</ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Figgle.Fonts" Version="0.6.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-        <PackageReference Include="Spectre.Console" Version="0.54.0" />
-        <PackageReference Include="Spectre.Console.Cli" Version="0.53.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
+		<PackageReference Include="Terminal.Gui" Version="1.19.0" />
         <PackageReference Include="xunit" Version="2.9.3" />
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -42,10 +46,14 @@
 	
         
 		<Using Include="TimeTracker.Domain.Interfaces" />
-		<Using Include="TimeTracker.UI.Interfaces" />
+		<Using Include="TimeTracker.UI.Menu.Interfaces" />
 		<Using Include="TimeTracker.Domain.Entities" />
 		<Using Include="Microsoft.EntityFrameworkCore" />
-		<Using Include="Spectre.Console" />
 	</ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="TimeTracker.UI\Utils\" />
+      <Folder Include="TimeTracker.UI\Views\" />
+    </ItemGroup>
 
 </Project>

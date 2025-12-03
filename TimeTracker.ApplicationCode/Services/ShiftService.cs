@@ -1,4 +1,4 @@
-﻿namespace TimeTracker.Application.Services;
+﻿namespace TimeTracker.ApplicationCode.Services;
 
 /// <summary>
 /// Provides services for managing work shifts, including starting and ending shifts for projects.
