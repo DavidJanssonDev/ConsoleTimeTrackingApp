@@ -23,7 +23,7 @@ internal sealed class ClockInCommand : ShiftCommandBase
 
     protected override void ExecuteCore()
     {
-        Domain.Entities.Shift? active = ShiftStore.GetActiveShift();
+        Shift? active = ShiftStore.GetActiveShift();
         if (active != null)
         {
             throw new InvalidOperationException("Already clocked in.");
@@ -32,7 +32,7 @@ internal sealed class ClockInCommand : ShiftCommandBase
         string projectNameOrId = PickProjectOrCreateNew();
         string? note = DialogHelpers.PromptText(Prompts.OptionalNote, allowEmpty: true);
 
-        Domain.Entities.Shift shift = ShiftStore.StartShift(projectNameOrId, note);
+        Shift shift = ShiftStore.StartShift(projectNameOrId, note);
 
         MessageBox.Query(
             "Clock In",

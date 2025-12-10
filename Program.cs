@@ -32,7 +32,7 @@ internal static class Program
         IShiftStore shiftStore = new EfShiftStore(projectRepository, shiftRepository, shiftService);
 
         // Register built-in + plugin commands.
-        CommandRegistry registry = new CommandRegistry();
+        CommandRegistry registry = new();
         BuiltInCommandRegistrar.RegisterAll(registry, shiftStore, ui);
 
         PluginLoader.LoadFromFolder(registry, "plugins", shiftStore);
