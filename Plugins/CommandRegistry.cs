@@ -32,4 +32,14 @@ internal sealed class CommandRegistry
 
         return dict;
     }
+
+    internal IEnumerable<object> GetCategories()
+    {
+        throw new NotImplementedException();
+    }
+
+    internal IEnumerable<ICommand> GetByCategory(string category)
+    {
+        throw new NotImplementedException();
+    }
 }

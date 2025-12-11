@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Terminal.Gui;
 using TimeTracker.MenuModel;
+using TimeTracker.MenuModel.Interfaces;
 using MenuItem = TimeTracker.MenuModel.MenuItem;
 
 namespace TimeTracker.UI;
@@ -10,6 +11,31 @@ namespace TimeTracker.UI;
 /// </summary>
 internal static class MenuNavigation
 {
+    public static void OnEnter(IMenuElement selected, Stack<IMenuElement> stack, UiState ui)
+    {
+        switch (selected)
+        {
+            case MenuNode submenu:
+                stack.Push(submenu);
+                MenuRenderer.ShowMenu(submenu, ui);
+                break;
+
+            case MenuCommand leaf:
+                // lazy submenu support
+                if (leaf.Command.CanHaveSubmenu)
+                {
+                    MenuNode? built = leaf.Command.BuildSubmenu();
+                    if (built is not null)
+                    {
+                        stack.Push(built);
+                        MenuRenderer.ShowMenu(built, ui);
+                        return;
+                    }
+                }
+
+                leaf.Command.Execute();
+                break;
+        }
     public static Stack<MenuNode> CreateStack(MenuNode rootMenu)
     {
         Stack<MenuNode> stack = new Stack<MenuNode>();

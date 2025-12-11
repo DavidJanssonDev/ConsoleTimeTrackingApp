@@ -11,27 +11,21 @@ internal static class RootMenuBuilder
 {
     public static MenuNode BuildFromCommands(CommandRegistry registry)
     {
-        MenuNode root = new MenuNode("Main Menu")
+        MenuNode root = new("Root");
+
+        foreach (string category in registry.GetCategories())
         {
-            Footer = "Shift Tracker"
-        };
+            MenuNode categoryNode = new(category);
 
-        Dictionary<string, List<ICommand>> grouped = registry.GetCommandsGroupedByCategory();
-
-        foreach (KeyValuePair<string, List<ICommand>> kv in grouped)
-        {
-            string category = kv.Key;
-            List<ICommand> commands = kv.Value;
-
-            MenuNode categoryMenu = new MenuNode(category);
-
-            for (int i = 0; i < commands.Count; i++)
+            foreach (ICommand cmd in registry.GetByCategory(category))
             {
-                ICommand cmd = commands[i];
-                categoryMenu.Items.Add(new MenuItem(cmd.DisplayName, cmd));
+                if (cmd.CanHaveSubmenu)
+                    categoryNode.Items.Add(new MenuNode(cmd.DisplayName));
+                else
+                    categoryNode.Items.Add(new MenuCommand(cmd.DisplayName, cmd));
             }
 
-            root.Items.Add(new MenuItem(category, categoryMenu));
+            root.Items.Add(categoryNode);
         }
 
         return root;
