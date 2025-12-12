@@ -1,4 +1,5 @@
 ﻿using Terminal.Gui;
+using TimeTracker.MenuModel.Forms;
 
 namespace TimeTracker.UI;
 
@@ -6,18 +7,11 @@ namespace TimeTracker.UI;
 /// Holds main UI views.
 /// Internal because plugins never need direct UI access.
 /// </summary>
-internal sealed class UiState
+internal sealed class UiState(Window mainWindow, ListView menuListView, Label statusLabel)
 {
-    public Toplevel TopLevel { get; }
-    public Window MainWindow { get; }
-    public ListView MenuListView { get; }
-    public Label StatusLabel { get; }
+    public Window MainWindow { get; } = mainWindow;
+    public ListView MenuListView { get; } = menuListView;
+    public Label StatusLabel { get; } = statusLabel;
 
-    public UiState(Toplevel topLevel, Window mainWindow, ListView menuListView, Label statusLabel)
-    {
-        TopLevel = topLevel;
-        MainWindow = mainWindow;
-        MenuListView = menuListView;
-        StatusLabel = statusLabel;
-    }
+    public Action<MenuForm, IReadOnlyDictionary<string, string>>? OnFormSubmitted { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using Terminal.Gui;
 using TimeTracker.Commands.Base;
+using TimeTracker.Plugins;
 using TimeTracker.Store;
 
 namespace TimeTracker.Commands.Timeshift;
@@ -7,24 +8,27 @@ namespace TimeTracker.Commands.Timeshift;
 /// <summary>
 /// Ends the currently active shift.
 /// </summary>
-internal sealed class ClockOutCommand : ShiftCommandBase
+public sealed class ClockOutCommand : ICommand
 {
-    public override string DisplayName => "Clock Out";
-    public override string Category => "Shift";
-    public override bool CanHaveSubmenu => false;
+    public string DisplayName => "Clock Out";
+    public string Category => "Time";
+    public bool OpensPage => false;
 
-    public ClockOutCommand(IShiftStore store) : base(store) { }
-
-    protected override void ExecuteCore()
+    public CommandResult Execute(ICommandContext context)
     {
-        Domain.Entities.Shift? active = ShiftStore.GetActiveShift();
-        if (active == null)
-        {
-            throw new InvalidOperationException("Not clocked in.");
-        }
+        var activeShift = context.ShiftStore.GetActiveShift();
 
-        ShiftStore.EndShift(active.Id);
+        if (activeShift is null) 
+            return new ShowMessageResult("No Active Shift", "There is no active shift to clock out.");
+        
 
-        MessageBox.Query("Clock Out", $"Ended {active.Project.Name}.", "OK");
+        bool confirm = context.Confirm("Clock Out", "Clock out the active shift?");
+
+        if (!confirm)
+            return new StayResult();
+        
+        context.ShiftStore.ClockOut(activeShift.Id);
+
+        return new ShowMessageResult("Clocked Out", "Shift ended.");
     }
 }

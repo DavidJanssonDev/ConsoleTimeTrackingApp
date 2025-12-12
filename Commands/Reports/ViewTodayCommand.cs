@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Terminal.Gui;
 using TimeTracker.Commands.Base;
+using TimeTracker.MenuModel;
+using TimeTracker.Plugins;
 using TimeTracker.Store;
 
 namespace TimeTracker.Commands.Reports;
@@ -9,18 +11,33 @@ namespace TimeTracker.Commands.Reports;
 /// <summary>
 /// Shows shifts for today.
 /// </summary>
-internal sealed class ViewTodayCommand : ShiftCommandBase
+public sealed class ViewTodayCommand : ICommand
 {
-    public override string DisplayName => "View Today";
-    public override string Category => "Reports";
-    public override bool CanHaveSubmenu => false;
+    public string DisplayName => "View Today";
+    public string Category => "Reports";
 
-    public ViewTodayCommand(IShiftStore store) : base(store) { }
+    public bool OpensPage => true;
 
-    protected override void ExecuteCore()
+    public CommandResult Execute(ICommandContext context)
     {
-        List<Shift> shifts = ShiftStore.GetShiftsForDate(DateTime.Now);
-        string text = shifts.Count == 0 ? "No shifts today." : ShiftFormatter.FormatShifts(shifts);
-        MessageBox.Query("Today", text, "OK");
+        DateTime today = DateTime.Today;
+
+        List<Shift>? shifts = context.ShiftStore.GetShiftsForDate(today);
+
+        MenuNode page = new("Today")
+        {
+            Footer = "Esc/Backspace to go back"
+        };
+
+        if (shifts.Count == 0)
+        {
+            page.Items.Add(new MenuNode("No shifts today."));
+            return new NavigateToResult(page);
+        }
+
+        foreach (Shift shfit in shifts)
+            page.Items.Add(new MenuNode($"Shift #{shfit.Id}"));
+
+        return new NavigateToResult(page);
     }
 }

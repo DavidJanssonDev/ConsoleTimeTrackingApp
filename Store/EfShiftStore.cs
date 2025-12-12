@@ -33,12 +33,12 @@ internal sealed class EfShiftStore(IProjectRepository projects, IShiftRepository
         return _projects.GetAllAsync().GetAwaiter().GetResult();
     }
 
-    public Shift StartShift(string projectNameOrId, string? note)
+    public Shift ClockIn(string projectNameOrId, string? note)
     {
         return _service.StartShiftAsync(projectNameOrId, note).GetAwaiter().GetResult();
     }
 
-    public void EndShift(long id)
+    public void ClockOut(long id)
     {
         _service.EndShiftAsync(id).GetAwaiter().GetResult();
     }

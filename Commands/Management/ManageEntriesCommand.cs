@@ -1,76 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
 using TimeTracker.MenuModel;
 using TimeTracker.Plugins;
-using TimeTracker.Store;
-using MenuItem = TimeTracker.MenuModel.MenuItem;
 
-namespace TimeTracker.Commands.Management;
-
-/// <summary>
-/// Dynamic submenu listing last 14 days of shifts.
-/// Selecting a shift gives a Delete action.
-/// </summary>
-internal sealed class ManageEntriesCommand : ShiftCommandBase
+public sealed class ManageEntriesCommand : ICommand
 {
-    public override string DisplayName => "Manage Entries";
-    public override string Category => "Management";
-    public override bool CanHaveSubmenu => true;
+    public string DisplayName => "Manage Entries";
+    public string Category => "Management";
+    public bool OpensPage => true;
 
-    public ManageEntriesCommand(IShiftStore store) : base(store) { }
-
-    protected override void ExecuteCore() { }
-
-    public override MenuNode? BuildSubmenu()
+    public CommandResult Execute(ICommandContext context)
     {
-        DateTime end = DateTime.Now.Date.AddDays(1);
+        DateTime end = DateTime.Today.AddDays(1);
         DateTime start = end.AddDays(-14);
 
-        List<Domain.Entities.Shift> shifts = ShiftStore.GetShiftsForDateRange(start, end);
+        List<Shift>? shifts = context.ShiftStore.GetShiftsForDateRange(start, end); // :contentReference[oaicite:8]{index=8}
 
-        MenuNode menu = new MenuNode("Manage Entries")
+        var page = new MenuNode("Manage Entries")
         {
-            Footer = "Pick a shift to delete"
+            Footer = "Pick an entry to manage."
         };
 
         if (shifts.Count == 0)
         {
-            ICommand none = new InlineCommand("No shifts found", "(internal)", ShiftStore, () => { });
-            menu.Items.Add(new MenuItem(none.DisplayName, none));
-            return menu;
+            page.Items.Add(new MenuNode("No entries in the last 14 days."));
+            return new NavigateToResult(page);
         }
 
-        for (int i = 0; i < shifts.Count; i++)
+        foreach (Shift shift in shifts)
         {
-            Domain.Entities.Shift s = shifts[i];
-            string line = ShiftFormatter.FormatSingleShiftLine(s);
-            MenuNode actions = BuildActionsForShift(s);
-            menu.Items.Add(new MenuItem(line, actions));
+            string label = $"Shift #{shift.Id}"; // adjust using your Shift fields
+            page.Items.Add(new MenuCommand(label, new EntryActionsCommand(shift.Id)));
         }
 
-        return menu;
+        return new NavigateToResult(page);
     }
 
-    private MenuNode BuildActionsForShift(Domain.Entities.Shift shift)
+    private sealed class EntryActionsCommand : ICommand
     {
-        MenuNode actions = new MenuNode("Entry Actions")
+        private readonly long _shiftId;
+
+        public EntryActionsCommand(long shiftId)
         {
-            Footer = shift.Project.Name
-        };
+            _shiftId = shiftId;
+        }
 
-        ICommand delete = new InlineCommand(
-            "Delete Entry",
-            "(internal)",
-            ShiftStore,
-            () =>
+        public string DisplayName => "Entry Actions";
+        public string Category => "(internal)";
+        public bool OpensPage => true;
+
+        public CommandResult Execute(ICommandContext context)
+        {
+            var actions = new MenuNode($"Shift #{_shiftId}")
             {
-                ShiftStore.DeleteShift(shift.Id);
-                MessageBox.Query("Deleted", "Entry deleted.", "OK");
-            });
+                Footer = "Choose an action."
+            };
 
-        actions.Items.Add(new MenuItem(delete.DisplayName, delete));
-        return actions;
+            actions.Items.Add(new MenuCommand("Delete Entry", new DeleteEntryCommand(_shiftId)));
+
+            return new NavigateToResult(actions);
+        }
+    }
+
+    private sealed class DeleteEntryCommand : ICommand
+    {
+        private readonly long _shiftId;
+
+        public DeleteEntryCommand(long shiftId)
+        {
+            _shiftId = shiftId;
+        }
+
+        public string DisplayName => "Delete Entry";
+        public string Category => "(internal)";
+        public bool OpensPage => false;
+
+        public CommandResult Execute(ICommandContext context)
+        {
+            bool confirm = context.Confirm("Delete Entry", $"Delete shift #{_shiftId}?");
+            if (!confirm)
+            {
+                return new StayResult();
+            }
+
+            context.ShiftStore.DeleteShift(_shiftId); // :contentReference[oaicite:9]{index=9}
+            return new ShowMessageResult("Deleted", "Entry deleted.");
+        }
     }
 }

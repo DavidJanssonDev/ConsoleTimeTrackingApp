@@ -1,30 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.Store;
+﻿using TimeTracker.MenuModel;
+using TimeTracker.Plugins;
+
 
 namespace TimeTracker.Commands.Reports;
 
 /// <summary>
 /// Shows shifts for current week.
 /// </summary>
-internal sealed class ViewWeekCommand : ShiftCommandBase
+public sealed class ViewWeekCommand : ICommand
 {
-    public override string DisplayName => "View Week";
-    public override string Category => "Reports";
-    public override bool CanHaveSubmenu => false;
+    public string DisplayName => "View Week";
+    public string Category => "Reports";
+    public bool OpensPage => true;
 
-    public ViewWeekCommand(IShiftStore store) : base(store) { }
-
-    protected override void ExecuteCore()
+    public CommandResult Execute(ICommandContext context)
     {
-        DateTime start = DateTime.Now.Date.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday);
+        DateTime today = DateTime.Today;
+
+        // Monday-based week (adjust if you prefer Sunday)
+        int delta = ((int)today.DayOfWeek + 6) % 7;
+        DateTime start = today.AddDays(-delta);
         DateTime end = start.AddDays(7);
 
-        List<Domain.Entities.Shift> shifts = ShiftStore.GetShiftsForDateRange(start, end);
+        var shifts = context.ShiftStore.GetShiftsForDateRange(start, end); // :contentReference[oaicite:2]{index=2}
 
-        string text = shifts.Count == 0 ? "No shifts this week." : ShiftFormatter.FormatShifts(shifts);
-        MessageBox.Query("Week", text, "OK");
+        var page = new MenuNode("This Week")
+        {
+            Footer = $"{start:yyyy-MM-dd} → {end.AddDays(-1):yyyy-MM-dd}"
+        };
+
+        if (shifts.Count == 0)
+        {
+            page.Items.Add(new MenuNode("No shifts this week."));
+            return new NavigateToResult(page);
+        }
+
+        foreach (var shift in shifts)
+            page.Items.Add(new MenuNode($"Shift #{shift.Id}"));
+        
+
+        return new NavigateToResult(page);
     }
 }

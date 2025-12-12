@@ -9,7 +9,6 @@ internal static class UiFactory
 {
     public static UiState CreateUi()
     {
-        Toplevel topLevel = Application.Top;
 
         Window mainWindow = new Window("Shift Tracker")
         {
@@ -19,13 +18,13 @@ internal static class UiFactory
             Height = Dim.Fill()
         };
 
-        Label helpLabel = new Label("↑/↓ move · Enter select · Esc/Backspace back")
+        Label helpLabel = new("↑/↓ move · Enter select · Esc/Backspace back")
         {
             X = Pos.Center(),
             Y = 0
         };
 
-        ListView menuListView = new ListView()
+        ListView menuListView = new()
         {
             X = Pos.Center(),
             Y = 2,
@@ -34,7 +33,7 @@ internal static class UiFactory
             AllowsMarking = false
         };
 
-        Label statusLabel = new Label(string.Empty)
+        Label statusLabel = new(string.Empty)
         {
             X = Pos.Center(),
             Y = Pos.Bottom(menuListView) + 1
@@ -42,6 +41,6 @@ internal static class UiFactory
 
         mainWindow.Add(helpLabel, menuListView, statusLabel);
 
-        return new UiState(topLevel, mainWindow, menuListView, statusLabel);
+        return new UiState(mainWindow, menuListView, statusLabel);
     }
 }

@@ -1,37 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.Store;
+﻿using TimeTracker.MenuModel;
+using TimeTracker.Plugins;
 
-namespace TimeTracker.Commands.Reports;
-
-/// <summary>
-/// Shows total time per project.
-/// </summary>
-internal sealed class TotalsByProjectCommand : ShiftCommandBase
+public sealed class ViewWeekCommand : ICommand
 {
-    public override string DisplayName => "Totals by Project";
-    public override string Category => "Reports";
-    public override bool CanHaveSubmenu => false;
+    public string DisplayName => "View Week";
+    public string Category => "Reports";
+    public bool OpensPage => true;
 
-    public TotalsByProjectCommand(IShiftStore store) : base(store) { }
-
-    protected override void ExecuteCore()
+    public CommandResult Execute(ICommandContext context)
     {
-        Dictionary<string, TimeSpan> totals = ShiftStore.TotalsByProject();
-        if (totals.Count == 0)
+        DateTime today = DateTime.Today;
+
+        // Monday-based week (adjust if you prefer Sunday)
+        int delta = ((int)today.DayOfWeek + 6) % 7;
+        DateTime start = today.AddDays(-delta);
+        DateTime end = start.AddDays(7);
+
+        var shifts = context.ShiftStore.GetShiftsForDateRange(start, end); // :contentReference[oaicite:2]{index=2}
+
+        var page = new MenuNode("This Week")
         {
-            MessageBox.Query("Totals", "No completed shifts yet.", "OK");
-            return;
+            Footer = $"{start:yyyy-MM-dd} → {end.AddDays(-1):yyyy-MM-dd}"
+        };
+
+        if (shifts.Count == 0)
+        {
+            page.Items.Add(new MenuNode("No shifts this week."));
+            return new NavigateToResult(page);
         }
 
-        List<string> lines = new List<string>();
-        foreach (KeyValuePair<string, TimeSpan> kv in totals)
-        {
-            lines.Add($"{kv.Key}: {kv.Value.TotalHours:F2} h");
-        }
+        foreach (var shift in shifts)
+            page.Items.Add(new MenuNode($"Shift #{shift.Id}"));
+        
 
-        MessageBox.Query("Totals", string.Join("\n", lines), "OK");
+        return new NavigateToResult(page);
     }
 }

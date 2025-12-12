@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using TimeTracker.MenuModel;
+using TimeTracker.MenuModel.Forms;
+using TimeTracker.MenuModel.Interfaces;
 
 namespace TimeTracker.UI;
 
@@ -8,24 +10,38 @@ namespace TimeTracker.UI;
 /// </summary>
 internal static class MenuRenderer
 {
-    public static void ShowMenu(MenuNode menu, UiState ui)
+    public static void Show(IMenuElement element, UiState ui)
+    {
+        switch (element)
+        {
+            case MenuNode menu:
+                ShowMenu(menu, ui);
+                break;
+
+            case MenuForm form:
+                FormRenderer.ShowForm(form, ui);
+                break;
+        }
+
+    }
+
+    private static void ShowMenu(MenuNode menu, UiState ui)
     {
         ui.MainWindow.Title = menu.Title;
 
-        List<string> items = new List<string>();
-        for (int i = 0; i < menu.Items.Count; i++)
+        List<string> lines = [];
+
+        foreach(IMenuElement child in menu.Items)
         {
-            MenuItem item = menu.Items[i];
-            string arrow = item.HasSubmenuHint ? " ▶" : string.Empty;
-            items.Add(item.Text + arrow);
+            bool isSubmenu = child is MenuNode or MenuForm;
+            string arrow = isSubmenu ? "▶" : string.Empty;
+            lines.Add(child.Title + arrow);
         }
 
-        ui.MenuListView.SetSource(items);
+        ui.MenuListView.SetSource(lines);
         ui.MenuListView.SelectedItem = 0;
 
-        if (!string.IsNullOrWhiteSpace(menu.Footer))
-        {
+        if (!string.IsNullOrWhiteSpace(menu.Footer)) 
             ui.StatusLabel.Text = menu.Footer;
-        }
     }
 }

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TimeTracker.MenuModel.Interfaces;
+﻿using TimeTracker.MenuModel.Interfaces;
 using TimeTracker.Plugins;
 
 namespace TimeTracker.MenuModel;
 
-/// <summary>A leaf node that executes a command when selected. Like a <button></button> or <a></a> in HTML. </
+/// <summary>
+/// A leaf node that executes a command when selected.
+/// Like a button or link in HTML.
+/// </summary>
 public sealed class MenuCommand : IMenuElement
 {
     public string Title { get; }

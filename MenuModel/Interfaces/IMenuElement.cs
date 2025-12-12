@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TimeTracker.MenuModel.Interfaces;
+﻿namespace TimeTracker.MenuModel.Interfaces;
 
 /// <summary>
 /// Base type for anything that can appear in a menu tree.

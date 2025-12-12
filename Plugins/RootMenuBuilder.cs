@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using TimeTracker.MenuModel;
 
 namespace TimeTracker.Plugins;
+
 /// <summary>
 /// Builds a root menu from grouped commands.
 /// </summary>
@@ -11,21 +10,30 @@ internal static class RootMenuBuilder
 {
     public static MenuNode BuildFromCommands(CommandRegistry registry)
     {
-        MenuNode root = new("Root");
-
-        foreach (string category in registry.GetCategories())
+        MenuNode root = new MenuNode("Main Menu")
         {
-            MenuNode categoryNode = new(category);
+            Footer = "Shift Tracker"
+        };
 
-            foreach (ICommand cmd in registry.GetByCategory(category))
+        Dictionary<string, List<ICommand>> grouped = registry.GetCommandsGroupedByCategory();
+
+        foreach (KeyValuePair<string, List<ICommand>> kv in grouped)
+        {
+            string category = kv.Key;
+            List<ICommand> commands = kv.Value;
+
+            MenuNode categoryMenu = new MenuNode(category);
+
+            for (int i = 0; i < commands.Count; i++)
             {
-                if (cmd.CanHaveSubmenu)
-                    categoryNode.Items.Add(new MenuNode(cmd.DisplayName));
-                else
-                    categoryNode.Items.Add(new MenuCommand(cmd.DisplayName, cmd));
+                ICommand cmd = commands[i];
+
+                // Leaf command node:
+                categoryMenu.Items.Add(new MenuCommand(cmd.DisplayName, cmd));
             }
 
-            root.Items.Add(categoryNode);
+            // Category is a submenu node:
+            root.Items.Add(categoryMenu);
         }
 
         return root;

@@ -1,68 +1,29 @@
-﻿using TimeTracker.Plugins;
+﻿using TimeTracker.MenuModel.Interfaces;
+using TimeTracker.Plugins;
 
 namespace TimeTracker.MenuModel;
 
 /// <summary>
-/// A selectable item in a menu.
-/// 
-/// A MenuItem can do ONE of two things:
-/// 1) Execute a command (Command != null)
-/// 2) Open a submenu (Submenu != null)
-/// 
-/// Public because MenuNode.Items exposes MenuItem to plugins.
+/// Temporary adapter for old code/plugins.
+/// Prefer MenuCommand and MenuNode directly.
 /// </summary>
-public sealed class MenuItem
+public sealed class MenuItem : IMenuElement
 {
-    /// <summary>
-    /// Text shown in the ListView.
-    /// </summary>
-    public string Text { get; }
-
-    /// <summary>
-    /// Command executed when this item is selected.
-    /// Null if this item is only for navigation to a submenu.
-    /// </summary>
+    public string Title { get; }
     public ICommand? Command { get; }
+    public MenuNode? Submenu { get; }
 
-    /// <summary>
-    /// Submenu to open when selected.
-    /// Null if this item is a command leaf.
-    /// </summary>
-    public MenuNode? Submenu { get; set; }
-
-    /// <summary>
-    /// If true, UI will show a ▶ indicator.
-    /// 
-    /// True when:
-    /// - Submenu already exists
-    /// - OR command can dynamically create one.
-    /// </summary>
-    public bool HasSubmenuHint { get; }
-
-    /// <summary>
-    /// Creates a command item (leaf).
-    /// </summary>
-    public MenuItem(string text, ICommand command)
+    public MenuItem(string title, ICommand command)
     {
-        Text = text;
+        Title = title;
         Command = command;
         Submenu = null;
-
-        // If the command *can* build a submenu later,
-        // show the arrow hint even before it exists.
-        HasSubmenuHint = command.CanHaveSubmenu;
     }
 
-    /// <summary>
-    /// Creates a submenu navigation item.
-    /// </summary>
-    public MenuItem(string text, MenuNode submenu)
+    public MenuItem(string title, MenuNode submenu)
     {
-        Text = text;
+        Title = title;
         Submenu = submenu;
         Command = null;
-
-        // A submenu always shows the arrow.
-        HasSubmenuHint = true;
     }
 }

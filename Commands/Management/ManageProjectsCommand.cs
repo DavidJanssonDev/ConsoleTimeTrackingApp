@@ -1,58 +1,58 @@
-﻿using System.Collections.Generic;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.Domain.Common;
-using TimeTracker.Domain.Entities;
-using TimeTracker.MenuModel;
+﻿using TimeTracker.MenuModel;
+using TimeTracker.MenuModel.Forms;
 using TimeTracker.Plugins;
-using TimeTracker.Store;
-using TimeTracker.UI;
-using MenuItem = TimeTracker.MenuModel.MenuItem;
 
-namespace TimeTracker.Commands.Management;
-
-/// <summary>
-/// Dynamic submenu to create and list projects.
-/// </summary>
-internal sealed class ManageProjectsCommand : ShiftCommandBase
+public sealed class ManageProjectsCommand : ICommand
 {
-    public override string DisplayName => "Manage Projects";
-    public override string Category => "Management";
-    public override bool CanHaveSubmenu => true;
+    public string DisplayName => "Manage Projects";
+    public string Category => "Management";
+    public bool OpensPage => true;
 
-    public ManageProjectsCommand(IShiftStore store) : base(store) { }
-
-    protected override void ExecuteCore() { }
-
-    public override MenuNode? BuildSubmenu()
+    public CommandResult Execute(ICommandContext context)
     {
-        MenuNode menu = new MenuNode("Projects")
+        var page = new MenuNode("Manage Projects")
         {
-            Footer = "Create new or view list"
+            Footer = "Select an action."
         };
 
-        ICommand create = new InlineCommand(
-            "Create Project",
-            "(internal)",
-            ShiftStore,
-            () =>
-            {
-                string name = DialogHelpers.PromptText(Prompts.EnterProjectName, allowEmpty: false);
-                Project project = ShiftStore.EnsureProject(name);
-                MessageBox.Query("Project", $"Created: {project.Name}", "OK");
-            });
+        page.Items.Add(new MenuCommand("Create Project", new CreateProjectCommand()));
 
-        menu.Items.Add(new MenuItem(create.DisplayName, create));
-
-        List<Project> projects = ShiftStore.GetAllProjects();
-        for (int i = 0; i < projects.Count; i++)
+        var projects = context.ShiftStore.GetAllProjects(); // :contentReference[oaicite:5]{index=5}
+        foreach (var p in projects)
         {
-            Project p = projects[i];
-            string text = $"{p.Id}: {p.Name}";
-            ICommand noop = new InlineCommand(text, "(internal)", ShiftStore, () => { });
-            menu.Items.Add(new MenuItem(text, noop));
+            // Adjust formatting based on your Project entity fields
+            page.Items.Add(new MenuNode($"Project #{p.Id}: {p.Name}"));
         }
 
-        return menu;
+        return new NavigateToResult(page);
+    }
+
+    private sealed class CreateProjectCommand : ICommand
+    {
+        public string DisplayName => "Create Project";
+        public string Category => "(internal)";
+        public bool OpensPage => true;
+
+        public CommandResult Execute(ICommandContext context)
+        {
+            var form = new MenuForm(
+                "Create Project",
+                values =>
+                {
+                    string name = values.TryGetValue("name", out var v) ? v.Trim() : "";
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        return new ShowMessageResult("Missing name", "Please enter a project name.");
+                    }
+
+                    context.ShiftStore.EnsureProject(name); // :contentReference[oaicite:6]{index=6}
+                    return new BackResult();
+                });
+
+            form.Fields.Add(new FormField("name", "Project name"));
+            form.Footer = "Enter a name and submit.";
+
+            return new NavigateToResult(form);
+        }
     }
 }

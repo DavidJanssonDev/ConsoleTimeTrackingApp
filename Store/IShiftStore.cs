@@ -13,10 +13,11 @@ public interface IShiftStore
     Project EnsureProject(string nameOrId);
     List<Project> GetAllProjects();
 
-    Shift StartShift(string projectNameOrId, string? note);
-    void EndShift(long id);
+    Shift ClockIn(string projectNameOrId, string? note);
+    void ClockOut(long id);
 
     Shift? GetActiveShift();
+    Shift? GetShiftForDate(DateTime today);
     List<Shift> GetShiftsForDate(DateTime localDate);
     List<Shift> GetShiftsForDateRange(DateTime startLocal, DateTime endLocal);
 
