@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.MenuModel;
+﻿using TimeTracker.MenuModel;
 using TimeTracker.Plugins;
-using TimeTracker.Store;
+
 
 namespace TimeTracker.Commands.Reports;
 
@@ -14,7 +10,7 @@ namespace TimeTracker.Commands.Reports;
 public sealed class ViewTodayCommand : ICommand
 {
     public string DisplayName => "View Today";
-    public string Category => "Reports";
+    public string Category => "View Projects/Shifts";
 
     public bool OpensPage => true;
 

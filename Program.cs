@@ -3,6 +3,7 @@ using TimeTracker.ApplicationCode.Services;
 using TimeTracker.Commands;
 using TimeTracker.Infrastructre.Persistence;
 using TimeTracker.MenuModel;
+using TimeTracker.MenuModel.Interfaces;
 using TimeTracker.Plugins;
 using TimeTracker.Store;
 using TimeTracker.UI;
@@ -15,52 +16,56 @@ internal static class Program
     {
         Application.Init();
 
-        // Create Terminal.Gui UI.
+        // 1) UI
         UiState ui = UiFactory.CreateUi();
 
-        // Build DbContext (Sqlite) and ensure DB exists.
-        TimeTrackerDbContext dbContext = CreateDbContext("timetracker.db");
+        // 2) Store (EF Core SQLite)
+        IShiftStore shiftStore = CreateShiftStore();
 
-        dbContext.Database.EnsureCreated();
+        // 3) Command context (UI layer for commands)
+        CommandContext context = new(shiftStore);
 
-        // Your existing repositories + service.
-        IProjectRepository projectRepository = new ProjectRepository(dbContext);
-        IShiftRepository shiftRepository = new ShiftRepository(dbContext);
-        IShiftService shiftService = new ShiftService(projectRepository, shiftRepository);
-
-        // Adapter store used by commands + plugins.
-        IShiftStore shiftStore = new EfShiftStore(projectRepository, shiftRepository, shiftService);
-
-        // Register built-in + plugin commands.
+        // 4) Register commands (built-ins + plugins)
         CommandRegistry registry = new();
         BuiltInCommandRegistrar.RegisterAll(registry, shiftStore, ui);
+        // PluginLoader.LoadFromFolder(registry, "plugins"); // optional
 
-        PluginLoader.LoadFromFolder(registry, "plugins", shiftStore);
+        // 5) Build root menu + navigation stack
+        MenuNode root = RootMenuBuilder.BuildFromCommands(registry);
+        Stack<IMenuElement> stack = MenuNavigation.CreateStack(root);
 
-        // Build root menu from categories.
-        MenuNode rootMenu = RootMenuBuilder.BuildFromCommands(registry);
+        // 6) Render + wire events
+        Toplevel top = new();
+        top.Add(ui.MainWindow);
 
-        // Navigation stack + handlers.
-        Stack<MenuNode> stack = MenuNavigation.CreateStack(rootMenu);
-        MenuNavigation.WireHandlers(ui, stack);
+        MenuRenderer.Show(stack.Peek(), ui, stack);
+        MenuNavigation.WireHandlers(ui, stack, context);
 
-        // Show root and run.
-        MenuRenderer.ShowMenu(stack.Peek(), ui);
-
-        Application.Run(ui.MainWindow);
+        Application.Run(top);
         Application.Shutdown();
     }
 
-    /// <summary>
-    /// Creates Sqlite-backed DbContext and creates schema if missing.
-    /// </summary>
     private static TimeTrackerDbContext CreateDbContext(string databasePath)
     {
-        DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder();
-        optionsBuilder.UseSqlite($"Data Source={databasePath}");
+        var options = new DbContextOptionsBuilder()
+            .UseSqlite($"Data Source={databasePath}")
+            .Options;
 
-        TimeTrackerDbContext context = new TimeTrackerDbContext(optionsBuilder.Options);
-        context.Database.EnsureCreated();
-        return context;
+        var db = new TimeTrackerDbContext(options);
+        db.Database.EnsureCreated();
+        return db;
     }
+
+    private static IShiftStore CreateShiftStore()
+    {
+        // Put the sqlite file in the working directory.
+        TimeTrackerDbContext db = CreateDbContext("timetracker.db");
+
+        var projectRepo = new EfProjectRepository(db);
+        var shiftRepo = new EfShiftRepository(db);
+        IShiftService shiftService = new ShiftService(projectRepo, shiftRepo);
+
+        return new EfShiftStore(projectRepo, shiftRepo, shiftService);
+    }
+
 }

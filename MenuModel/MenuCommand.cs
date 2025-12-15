@@ -7,14 +7,10 @@ namespace TimeTracker.MenuModel;
 /// A leaf node that executes a command when selected.
 /// Like a button or link in HTML.
 /// </summary>
-public sealed class MenuCommand : IMenuElement
+public sealed class MenuCommand(string title, ICommand command) : IMenuElement
 {
-    public string Title { get; }
-    public ICommand Command { get; }
+    /// <inheritdoc/>
+    public string Title { get; } = title;
+    public ICommand Command { get; } = command;
 
-    public MenuCommand(string title, ICommand command)
-    {
-        Title = title;
-        Command = command;
-    }
 }

@@ -10,7 +10,7 @@ internal static class UiFactory
     public static UiState CreateUi()
     {
 
-        Window mainWindow = new Window("Shift Tracker")
+        Window mainWindow = new("Shift Tracker")
         {
             X = 0,
             Y = 1,

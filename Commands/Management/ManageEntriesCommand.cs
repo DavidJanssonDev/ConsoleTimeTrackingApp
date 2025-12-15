@@ -15,7 +15,7 @@ public sealed class ManageEntriesCommand : ICommand
 
         List<Shift>? shifts = context.ShiftStore.GetShiftsForDateRange(start, end); // :contentReference[oaicite:8]{index=8}
 
-        var page = new MenuNode("Manage Entries")
+        MenuNode page = new("Manage Entries")
         {
             Footer = "Pick an entry to manage."
         };
@@ -35,14 +35,9 @@ public sealed class ManageEntriesCommand : ICommand
         return new NavigateToResult(page);
     }
 
-    private sealed class EntryActionsCommand : ICommand
+    private sealed class EntryActionsCommand(long shiftId) : ICommand
     {
-        private readonly long _shiftId;
-
-        public EntryActionsCommand(long shiftId)
-        {
-            _shiftId = shiftId;
-        }
+        private readonly long _shiftId = shiftId;
 
         public string DisplayName => "Entry Actions";
         public string Category => "(internal)";
@@ -50,7 +45,7 @@ public sealed class ManageEntriesCommand : ICommand
 
         public CommandResult Execute(ICommandContext context)
         {
-            var actions = new MenuNode($"Shift #{_shiftId}")
+            MenuNode actions = new($"Shift #{_shiftId}")
             {
                 Footer = "Choose an action."
             };
@@ -61,15 +56,11 @@ public sealed class ManageEntriesCommand : ICommand
         }
     }
 
-    private sealed class DeleteEntryCommand : ICommand
+    private sealed class DeleteEntryCommand(long shiftId) : ICommand
     {
-        private readonly long _shiftId;
+        private readonly long _shiftId = shiftId;
 
-        public DeleteEntryCommand(long shiftId)
-        {
-            _shiftId = shiftId;
-        }
-
+    
         public string DisplayName => "Delete Entry";
         public string Category => "(internal)";
         public bool OpensPage => false;
@@ -77,12 +68,12 @@ public sealed class ManageEntriesCommand : ICommand
         public CommandResult Execute(ICommandContext context)
         {
             bool confirm = context.Confirm("Delete Entry", $"Delete shift #{_shiftId}?");
-            if (!confirm)
-            {
-                return new StayResult();
-            }
 
-            context.ShiftStore.DeleteShift(_shiftId); // :contentReference[oaicite:9]{index=9}
+            if (!confirm)
+                return new StayResult();
+
+            context.ShiftStore.DeleteShift(_shiftId); 
+
             return new ShowMessageResult("Deleted", "Entry deleted.");
         }
     }

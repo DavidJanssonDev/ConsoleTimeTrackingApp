@@ -26,5 +26,5 @@ public sealed class MenuNode(string title) : IMenuElement
     /// Elements displayed inside this menu.
     /// Menus are MenuNode; commands are MenuCommand.
     /// </summary>
-    public List<IMenuElement> Items { get; } = new List<IMenuElement>();
+    public List<IMenuElement> Items { get; } = [];
 }

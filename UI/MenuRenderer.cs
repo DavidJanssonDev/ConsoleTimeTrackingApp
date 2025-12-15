@@ -5,43 +5,51 @@ using TimeTracker.MenuModel.Interfaces;
 
 namespace TimeTracker.UI;
 
-/// <summary>
-/// Renders a MenuNode into the ListView.
-/// </summary>
 internal static class MenuRenderer
 {
-    public static void Show(IMenuElement element, UiState ui)
+    public static void Show(IMenuElement element, UiState ui, Stack<IMenuElement> stack)
     {
         switch (element)
         {
             case MenuNode menu:
-                ShowMenu(menu, ui);
+                ShowMenu(menu, ui, stack);
                 break;
 
             case MenuForm form:
                 FormRenderer.ShowForm(form, ui);
                 break;
         }
-
     }
 
-    private static void ShowMenu(MenuNode menu, UiState ui)
+    private static void ShowMenu(MenuNode menu, UiState ui, Stack<IMenuElement> stack)
     {
         ui.MainWindow.Title = menu.Title;
 
-        List<string> lines = [];
+        var lines = new List<string>();
+        var mapping = new List<IMenuElement>();
 
-        foreach(IMenuElement child in menu.Items)
+        // Real items
+        foreach (IMenuElement child in menu.Items)
         {
-            bool isSubmenu = child is MenuNode or MenuForm;
-            string arrow = isSubmenu ? "▶" : string.Empty;
-            lines.Add(child.Title + arrow);
+            bool isPage = child is MenuNode or MenuForm;
+            lines.Add(child.Title + (isPage ? " ▶" : ""));
+            mapping.Add(child);
         }
 
+        // Virtual Back/Quit LAST row
+        bool isRoot = stack.Count <= 1;
+        lines.Add(isRoot ? "Quit" : "← Back");
+        mapping.Add(new SystemMenuElement(isQuit: isRoot));
+
         ui.MenuListView.SetSource(lines);
+
+        ui.CurrentMenuMapping = mapping;
+
         ui.MenuListView.SelectedItem = 0;
 
-        if (!string.IsNullOrWhiteSpace(menu.Footer)) 
+        if (!string.IsNullOrWhiteSpace(menu.Footer))
+        {
             ui.StatusLabel.Text = menu.Footer;
+        }
     }
 }

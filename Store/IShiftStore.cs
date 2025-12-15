@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace TimeTracker.Store;
 
 /// <summary>
@@ -17,11 +14,9 @@ public interface IShiftStore
     void ClockOut(long id);
 
     Shift? GetActiveShift();
-    Shift? GetShiftForDate(DateTime today);
     List<Shift> GetShiftsForDate(DateTime localDate);
     List<Shift> GetShiftsForDateRange(DateTime startLocal, DateTime endLocal);
 
     Dictionary<string, TimeSpan> TotalsByProject();
     void DeleteShift(long id);
 }
-

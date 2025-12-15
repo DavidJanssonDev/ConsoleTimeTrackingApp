@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.Domain.Common;
-using TimeTracker.MenuModel.Forms;
+﻿using TimeTracker.MenuModel.Forms;
 using TimeTracker.Plugins;
-using TimeTracker.Store;
-using TimeTracker.UI;
 
 namespace TimeTracker.Commands.Timeshift;
-
 
 /// <summary>
 /// Starts a new shift by selecting or creating a project.
@@ -18,7 +9,7 @@ namespace TimeTracker.Commands.Timeshift;
 public sealed class ClockInCommand : ICommand
 {
     public string DisplayName => "Clock In";
-    public string Category => "Shift";
+    public string Category => "Clock In/Out";
     public bool OpensPage => true;
 
 

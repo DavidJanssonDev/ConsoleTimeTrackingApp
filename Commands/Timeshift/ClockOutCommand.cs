@@ -1,7 +1,4 @@
-﻿using Terminal.Gui;
-using TimeTracker.Commands.Base;
-using TimeTracker.Plugins;
-using TimeTracker.Store;
+﻿using TimeTracker.Plugins;
 
 namespace TimeTracker.Commands.Timeshift;
 
@@ -11,7 +8,7 @@ namespace TimeTracker.Commands.Timeshift;
 public sealed class ClockOutCommand : ICommand
 {
     public string DisplayName => "Clock Out";
-    public string Category => "Time";
+    public string Category => "Clock In/Out";
     public bool OpensPage => false;
 
     public CommandResult Execute(ICommandContext context)

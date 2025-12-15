@@ -11,46 +11,65 @@ namespace TimeTracker.Plugins;
 /// </summary>
 internal static class PluginLoader
 {
-    public static void LoadFromFolder(CommandRegistry registry, string folder, IShiftStore store)
+    public static void LoadFromFolder(CommandRegistry registry, string folder)
     {
         if (!Directory.Exists(folder))
-            return;
-
-        string[] dlls = Directory.GetDirectories(folder, "*.dll");
-        Type comandType = typeof(ICommand);
-
-        for (int index = 0; index < dlls.Length; index++)
         {
-            Assembly assembly = Assembly.LoadFrom(dlls[index]);
-            Type[] types = assembly.GetExportedTypes();
+            return;
+        }
+
+        string[] dlls = Directory.GetFiles(folder, "*.dll");
+        Type commandType = typeof(ICommand);
+
+        for (int i = 0; i < dlls.Length; i++)
+        {
+            Assembly assembly;
+            try
+            {
+                assembly = Assembly.LoadFrom(dlls[i]);
+            }
+            catch
+            {
+                continue;
+            }
+
+            Type[] types;
+            try
+            {
+                types = assembly.GetExportedTypes();
+            }
+            catch
+            {
+                continue;
+            }
 
             for (int typeIndex = 0; typeIndex < types.Length; typeIndex++)
             {
                 Type type = types[typeIndex];
-                bool IsConcrete = comandType.IsAssignableFrom(type) && !type.IsAbstract;
+                bool isConcreteCommand = commandType.IsAssignableFrom(type) && !type.IsAbstract;
 
-                if (IsConcrete)
+                if (!isConcreteCommand)
+                {
                     continue;
+                }
 
-                ConstructorInfo? ctorWithStone = type.GetConstructor([typeof(IShiftStore)]);
                 ConstructorInfo? ctorDefault = type.GetConstructor(Type.EmptyTypes);
+                if (ctorDefault is null)
+                {
+                    continue; // keep it simple: plugin commands must have parameterless ctor
+                }
 
                 ICommand instance;
-
-                if (ctorWithStone != null)
-                {
-                    instance = (ICommand)ctorWithStone.Invoke([store]);
-                }
-                else if (ctorDefault != null)
+                try
                 {
                     instance = (ICommand)ctorDefault.Invoke(null);
-                    instance.ShiftStore = store;
                 }
-                else
+                catch
+                {
                     continue;
+                }
 
                 registry.Register(instance);
-
             }
         }
     }

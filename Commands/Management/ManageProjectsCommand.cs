@@ -1,4 +1,5 @@
-﻿using TimeTracker.MenuModel;
+﻿using TimeTracker.Domain.Entities;
+using TimeTracker.MenuModel;
 using TimeTracker.MenuModel.Forms;
 using TimeTracker.Plugins;
 
@@ -17,10 +18,9 @@ public sealed class ManageProjectsCommand : ICommand
 
         page.Items.Add(new MenuCommand("Create Project", new CreateProjectCommand()));
 
-        var projects = context.ShiftStore.GetAllProjects(); // :contentReference[oaicite:5]{index=5}
-        foreach (var p in projects)
+        List<Project> projects = context.ShiftStore.GetAllProjects();
+        foreach (Project p in projects)
         {
-            // Adjust formatting based on your Project entity fields
             page.Items.Add(new MenuNode($"Project #{p.Id}: {p.Name}"));
         }
 
@@ -35,20 +35,19 @@ public sealed class ManageProjectsCommand : ICommand
 
         public CommandResult Execute(ICommandContext context)
         {
-            var form = new MenuForm(
-                "Create Project",
-                values =>
+            CommandResult func(IReadOnlyDictionary<string, string> values)
+            {
+                string name = values.TryGetValue("name", out var v) ? v.Trim() : "";
+                if (string.IsNullOrWhiteSpace(name))
                 {
-                    string name = values.TryGetValue("name", out var v) ? v.Trim() : "";
-                    if (string.IsNullOrWhiteSpace(name))
-                    {
-                        return new ShowMessageResult("Missing name", "Please enter a project name.");
-                    }
+                    return new ShowMessageResult("Missing name", "Please enter a project name.");
+                }
 
-                    context.ShiftStore.EnsureProject(name); // :contentReference[oaicite:6]{index=6}
-                    return new BackResult();
-                });
+                context.ShiftStore.EnsureProject(name);
+                return new BackResult();
+            }
 
+            MenuForm form = new("Create Project", func);
             form.Fields.Add(new FormField("name", "Project name"));
             form.Footer = "Enter a name and submit.";
 

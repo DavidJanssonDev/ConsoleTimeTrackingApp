@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TimeTracker.MenuModel;
-using TimeTracker.Plugins;
-using TimeTracker.Store;
+﻿using TimeTracker.Plugins;
+
 namespace TimeTracker.Commands;
 
-internal sealed class InlineCommand(string displayName, string category, IShiftStore store, Action execute) : ICommand
+internal sealed class InlineCommand : ICommand
 {
-    private readonly Action _execute = execute;
+    private readonly Func<ICommandContext, CommandResult> _execute;
 
-    public string DisplayName { get; } = displayName;
-    public string Category { get; } = category;
-    public bool CanHaveSubmenu => false; 
-    public IShiftStore ShiftStore { get; set; } = store;
-
-    public void Execute()
+    public InlineCommand(
+        string displayName,
+        string category,
+        bool opensPage,
+        Func<ICommandContext, CommandResult> execute)
     {
-        _execute.Invoke();
+        DisplayName = displayName;
+        Category = category;
+        OpensPage = opensPage;
+        _execute = execute;
     }
 
-    public MenuNode? BuildSubmenu()
+    public string DisplayName { get; }
+    public string Category { get; }
+    public bool OpensPage { get; }
+
+    public CommandResult Execute(ICommandContext context)
     {
-        return null; 
+        return _execute(context);
     }
 }

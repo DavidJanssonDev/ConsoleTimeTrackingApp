@@ -9,50 +9,56 @@ namespace TimeTracker.Store;
 /// Adapter from your EF Core repos/services to the UI command needs.
 /// Uses GetAwaiter().GetResult() because Terminal.Gui callbacks are sync.
 /// </summary>
-internal sealed class EfShiftStore(IProjectRepository projects, IShiftRepository shifts, IShiftService service) : IShiftStore
+internal sealed class EfShiftStore : IShiftStore
 {
 
-    private readonly IProjectRepository _projects = projects;
-    private readonly IShiftRepository _shifts = shifts;
-    private readonly IShiftService _service = service;
+    private readonly IProjectRepository _projects;
+    private readonly IShiftRepository _shifts;
+    private readonly IShiftService _service;
+
+    public EfShiftStore(IProjectRepository projects, IShiftRepository shifts, IShiftService service)
+    {
+        _projects = projects;
+        _shifts = shifts;
+        _service = service;
+    }
 
     public Project EnsureProject(string nameOrId)
     {
         if (int.TryParse(nameOrId, out int id))
         {
             Project? byId = _projects.GetByIdAsync(id).GetAwaiter().GetResult();
-            return byId ?? throw new Exception("Project not found.");
+            return byId ?? throw new InvalidOperationException("Project not found.");
         }
+
+        // "Ensure" semantics: create if missing, otherwise return existing
+        Project? existing = _projects.GetByNameAsync(nameOrId).GetAwaiter().GetResult();
+        if (existing is not null)
+            return existing;
+        
 
         Project created = _projects.CreateAsync(nameOrId).GetAwaiter().GetResult();
         return created;
     }
 
+    #region Getters
     public List<Project> GetAllProjects()
     {
         return _projects.GetAllAsync().GetAwaiter().GetResult();
     }
 
-    public Shift ClockIn(string projectNameOrId, string? note)
-    {
-        return _service.StartShiftAsync(projectNameOrId, note).GetAwaiter().GetResult();
-    }
-
-    public void ClockOut(long id)
-    {
-        _service.EndShiftAsync(id).GetAwaiter().GetResult();
-    }
-
     public Shift? GetActiveShift()
     {
         List<Shift> all = _shifts.GetAllAsync().GetAwaiter().GetResult();
-        for (int i = 0; i < all.Count; i++)
+
+        for (int index = 0; index < all.Count; index++)
         {
-            if (all[i].IsOpen)
+            if (all[index].IsOpen)
             {
-                return all[i];
+                return all[index];
             }
         }
+
         return null;
     }
 
@@ -81,6 +87,22 @@ internal sealed class EfShiftStore(IProjectRepository projects, IShiftRepository
 
         return list;
     }
+
+    #endregion
+
+
+    #region Setters
+    public Shift ClockIn(string projectNameOrId, string? note)
+    {
+        return _service.StartShiftAsync(projectNameOrId, note).GetAwaiter().GetResult();
+    }
+
+    public void ClockOut(long id)
+    {
+        _service.EndShiftAsync(id).GetAwaiter().GetResult();
+    }
+    #endregion
+
 
     public Dictionary<string, TimeSpan> TotalsByProject()
     {

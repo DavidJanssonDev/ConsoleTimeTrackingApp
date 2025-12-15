@@ -4,10 +4,10 @@
 /// Provides methods for managing <see cref="Project"/> entities in the database.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="ProjectRepository"/> class.
+/// Initializes a new instance of the <see cref="EfProjectRepository"/> class.
 /// </remarks>
 /// <param name="db">The database context.</param>
-public class ProjectRepository(TimeTrackerDbContext db) : IProjectRepository
+public class EfProjectRepository(TimeTrackerDbContext db) : IProjectRepository
 {
     private readonly TimeTrackerDbContext _db = db;
 
