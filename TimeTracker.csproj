@@ -52,4 +52,11 @@
 		<Using Include="Microsoft.EntityFrameworkCore" />
 	</ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Commands\" />
+      <Folder Include="MenuModel\" />
+      <Folder Include="Plugins\" />
+      <Folder Include="Store\" />
+    </ItemGroup>
+
 </Project>
