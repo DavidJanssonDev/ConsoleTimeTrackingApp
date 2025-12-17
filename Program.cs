@@ -1,7 +1,4 @@
-﻿using Terminal.Gui;
-using TimeTracker.ApplicationCode.Services;
-using TimeTracker.UI;
-using TimeTracker.UI.Actions.Public;
+﻿using TimeTracker.UI.Actions.Public;
 using TimeTracker.UI.MenuSystem;
 
 namespace TimeTracker;
@@ -11,7 +8,7 @@ internal static class Program
     static void Main()
     {
         // Define a submenu with a title, and allow a back button for navigation
-        var submenu = new Menu("Submenu")
+        Menu submenu = new ("Submenu")
         {
             HasBackButton = true,
             Options =
@@ -22,7 +19,7 @@ internal static class Program
         };
 
         // Define the root menu with a title and options
-        var rootMenu = new Menu("Main Menu")
+        Menu rootMenu = new("Main Menu")
         {
             Options =
             {
@@ -36,7 +33,7 @@ internal static class Program
         };
 
         // Create the menu engine with the root menu and run the menu system
-        var menuEngine = new MenuEngine(rootMenu);
+        MenuEngine menuEngine = new(rootMenu);
         menuEngine.Run();
     }
 

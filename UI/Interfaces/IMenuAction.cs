@@ -4,6 +4,12 @@ using System.Text;
 using TimeTracker.UI.MenuSystem;
 
 namespace TimeTracker.UI.Interfaces;
+
+
+/// <summary>
+/// Defines an interface for actions that can be performed when a menu option is selected.
+/// Implementations can include navigating to submenus, executing commands, or quitting the application.
+/// </summary>
 public interface IMenuAction
 {
     /// <summary>
