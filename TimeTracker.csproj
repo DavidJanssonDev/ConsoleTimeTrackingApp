@@ -52,8 +52,4 @@
 		<Using Include="Microsoft.EntityFrameworkCore" />
 	</ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Commands\" />
-    </ItemGroup>
-
 </Project>

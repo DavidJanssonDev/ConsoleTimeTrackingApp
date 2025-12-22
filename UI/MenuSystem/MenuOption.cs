@@ -9,36 +9,28 @@ namespace TimeTracker.UI.MenuSystem;
 /// Represents an option in a menu, consisting of a label and an action to execute when selected.
 /// The action can be a command or a submenu (any object implementing <see cref="IMenuAction"/>).
 /// </summary>
-public class MenuOption
+public class MenuOption(string label, IMenuAction? action = null) : IMenuElement
 {
     /// <summary>
-    /// Gets or sets the display text for this menu option.
+    /// Display text for this menu option.
     /// </summary>
-    public string Label { get; set; }
+    public string Label { get; set; } = label;
 
     /// <summary>
-    /// Gets or sets the action to perform when this option is selected.
-    /// The action can be a navigation to a submenu or a command (such as quit or custom action).
+    /// The action to perform when this option is selected (can be a submenu or command).
     /// </summary>
-    public IMenuAction Action { get; set; }
+    public IMenuAction? Action { get; set; } = action;
 
-
-    /// <summary>Whether this option is currently enabled and can be executed.</summary>
+    /// <summary>
+    /// Whether this option is currently enabled (selectable) or not.
+    /// </summary>
     public bool IsEnabled { get; set; } = true;
 
-    /// <summary>
-    /// Initializes a new menu option with the specified label and action.
-    /// </summary>
-    /// <param name="label">The text to display for this option.</param>
-    /// <param name="action">The action to execute when this option is selected (e.g., a submenu or a command).</param>
-    public MenuOption(string label, IMenuAction action)
-    {
-        Label = label;
-        Action = action;
-    }
+    /// <inheritdoc/>
+    public Style Style { get; set; } = new Style();
 
     /// <summary>
-    /// Returns the label of this menu option.
+    /// Return label (and mark as disabled if not enabled, for debugging/optional display)
     /// </summary>
     public override string ToString()
     {

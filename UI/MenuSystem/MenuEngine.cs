@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Principal;
-using System.Text;
+﻿using System.Collections;
 using Terminal.Gui;
 using TimeTracker.UI.Actions.Internal;
 using TimeTracker.UI.Actions.Public;
-using static Terminal.Gui.View;
+using TimeTracker.UI.Element;
+using TimeTracker.UI.Interfaces;
+using TimeTracker.UI.MenuSystem.Interface;
+using TimeTracker.UI.MenuSystem.Styles;
 
 namespace TimeTracker.UI.MenuSystem;
 
@@ -179,7 +179,7 @@ public class MenuEngine
     /// - Right arrow triggers navigation if the selected item is a submenu.
     /// </summary>
     /// <param name="args">The key event arguments containing key info.</param>
-    private void OnKeyPressed(KeyEventEventArgs args)
+    private void OnKeyPressed(View.KeyEventEventArgs args)
     {
         Key key = args.KeyEvent.Key;
         int index = _listView.SelectedItem;
@@ -201,3 +201,4 @@ public class MenuEngine
         }
     }
 }
+
