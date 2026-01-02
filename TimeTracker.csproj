@@ -18,12 +18,12 @@
 	
 	<ItemGroup>
 	  <Compile Remove="Domain\Services\**" />
-	  <Compile Remove="Infrastructre\Plugins\**" />
+	  <Compile Remove="Infrastructure\Plugins\**" />
 	  <EmbeddedResource Remove="Domain\Services\**" />
-	  <EmbeddedResource Remove="Infrastructre\Plugins\**" />
+	  <EmbeddedResource Remove="Infrastructure\Plugins\**" />
 	  <EmbeddedResource Remove="UI\Screens\**" />
 	  <None Remove="Domain\Services\**" />
-	  <None Remove="Infrastructre\Plugins\**" />
+	  <None Remove="Infrastructure\Plugins\**" />
 	</ItemGroup>
 
     <ItemGroup>

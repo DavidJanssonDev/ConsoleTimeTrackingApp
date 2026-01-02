@@ -8,19 +8,31 @@ namespace TimeTracker.UI.MenuSystem;
 
 public sealed class MenuApp
 {
-    private readonly Window _window;
-    private readonly Label _header;
-    private readonly ListView _list;
-    private readonly Label _footer;
+    private Window _window = null!;
+    private Label _header = null!;
+    private ListView _list = null!;
+    private Label _footer = null!;
+
 
     private IReadOnlyList<MenuItem> _currentItems = Array.Empty<MenuItem>();
-    private readonly NavigationService _nav;
+    private NavigationService _nav = null!;
 
-    public MenuApp()
+    public void Run(MenuPage root)
     {
         Application.Init();
 
-        _window = new Window()
+        BuildUi();
+
+        _nav = new NavigationService(RenderPage, () => Application.RequestStop());
+        _nav.Start(root);
+
+        Application.Run();
+        Application.Shutdown();
+    }
+
+    private void BuildUi()
+    {
+        _window = new Window
         {
             X = 0,
             Y = 0,
@@ -36,7 +48,7 @@ public sealed class MenuApp
             Height = 1
         };
 
-        _list = new ListView()
+        _list = new ListView
         {
             X = 1,
             Y = 2,
@@ -52,22 +64,13 @@ public sealed class MenuApp
             Height = 1
         };
 
-        _list.OpenSelectedItem += _ => ActivateSeleted();
+        _list.OpenSelectedItem += _ => ActivateSelected();
         _list.KeyPress += OnKeyPress;
 
         _window.Add(_header, _list, _footer);
         Application.Top.Add(_window);
-
-        _nav = new NavigationService(RenderPage, () => Application.RequestStop());
-
     }
 
-    public void Run(MenuPage root)
-    {
-        _nav.Start(root);
-        Application.Run();
-        Application.Shutdown();
-    }
 
     private void RenderPage(MenuPage page)
     {
@@ -78,17 +81,17 @@ public sealed class MenuApp
 
         // Add Back/Quit consistantly (instead of the current Conditional logic)
         if (_nav.CanGoBack)
-            items.Add(new MenuItem { Label = "← Back", Action = new BackAction() });
-        else 
-            items.Add(new MenuItem { Label = "Q Quit", Action = new QuitAction() });
-    
+            items.Insert(0, new MenuItem { Label = "← Back", Action = new BackAction() });
+
+        items.Add(new MenuItem { Label = "Quit", Action = new QuitAction()});
+
         _currentItems = items;
 
         _list.SetSource(items.Select(item => item.Enabled ? item.Label : $"{item.Label} (disabled)").ToList());
         _list.SelectedItem = 0;
     }
 
-    private void ActivateSeleted()
+    private void ActivateSelected()
     {
         int idx = _list.SelectedItem;
         if (idx < 0 || idx >= _currentItems.Count)
