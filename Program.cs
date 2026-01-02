@@ -4,37 +4,21 @@ using TimeTracker.UI.MenuSystem.Interface;
 
 namespace TimeTracker;
 
+using TimeTracker.UI.MenuSystem;
+
 internal static class Program
 {
-    static void Main()
+    private static void Main()
     {
-        MenuPage submenu = new()
-        {
-            Title = "Submenu",
-            Items =
-            [
-                new MenuItem {Label = "Submenu Say Hello", Action = new MessageAction("Greetings", "Hello from the new menu engine!")}
-            ]
-        };
-
-        MenuPage root = new()
+        var root = new MenuPage
         {
             Title = "Main Menu",
             Items =
             [
-                new MenuItem {Label = "Go to Submenu", Action = new NavigateAction(submenu)},
-                new MenuItem {Label = "Say Hello", Action = new MessageAction("Hi", "Hello")}
+                new MenuItem { Label = "Quit", Action = new QuitAction() }
             ]
         };
+
         new MenuApp().Run(root);
-    }
-
-}
-
-public sealed class MessageAction(string title, string message) : IMenuAction
-{
-    public void Execute(NavigationService nav)
-    {
-        Terminal.Gui.MessageBox.Query(title, message, "OK");
     }
 }

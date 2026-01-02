@@ -1,4 +1,7 @@
-﻿using Terminal.Gui;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Terminal.Gui;
 using TimeTracker.UI.MenuSystem.Actions;
 
 namespace TimeTracker.UI.MenuSystem;
@@ -10,11 +13,13 @@ public sealed class MenuApp
     private readonly ListView _list;
     private readonly Label _footer;
 
-    private  IReadOnlyList<MenuItem> _currentItems = Array.Empty<MenuItem>();
+    private IReadOnlyList<MenuItem> _currentItems = Array.Empty<MenuItem>();
     private readonly NavigationService _nav;
 
     public MenuApp()
     {
+        Application.Init();
+
         _window = new Window()
         {
             X = 0,
@@ -110,4 +115,6 @@ public sealed class MenuApp
             _nav.Quit();
         }
     }
+
+    
 }
