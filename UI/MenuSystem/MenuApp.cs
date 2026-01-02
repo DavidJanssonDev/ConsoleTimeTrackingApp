@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Terminal.Gui;
+﻿using Terminal.Gui;
 using TimeTracker.UI.MenuSystem.Actions;
+using TimeTracker.UI.MenuSystem.Layout;
+using TimeTracker.UI.MenuSystem.Views;
 
 namespace TimeTracker.UI.MenuSystem;
 
@@ -10,7 +9,7 @@ public sealed class MenuApp
 {
     private Window _window = null!;
     private Label _header = null!;
-    private ListView _list = null!;
+    private MenuListView _menu = null!;
     private Label _footer = null!;
 
 
@@ -29,7 +28,6 @@ public sealed class MenuApp
         Application.Run();
         Application.Shutdown();
     }
-
     private void BuildUi()
     {
         _window = new Window
@@ -40,66 +38,91 @@ public sealed class MenuApp
             Height = Dim.Fill()
         };
 
-        _header = new Label("")
+        _header = new Label(string.Empty)
         {
-            X = 1,
+            Height = 1
+        };
+
+        _menu = new MenuListView
+        {
+            Height = Dim.Fill(),   // ✅ IMPORTANT: let VStack allocate remaining space
+            PaddingLeft = 1,
+            Spacing = 0,
+            CanFocus = true
+        };
+
+        _footer = new Label("↑/↓ select   Enter open/exec   Esc back   Q quit")
+        {
+            Height = 1
+        };
+
+        _menu.ItemActivated += ActivateSelected;
+
+        // Global keys (works regardless of focus)
+        _window.KeyPress += OnKeyPress;
+
+        var rootLayout = new VStack
+        {
+            X = 0,
             Y = 0,
-            Width = Dim.Fill() - 2,
-            Height = 1
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Padding = 1,
+            Spacing = 1,
+            FillChild = _menu // ✅ this is the important line
         };
 
-        _list = new ListView
-        {
-            X = 1,
-            Y = 2,
-            Width = Dim.Fill() - 2,
-            Height = Dim.Fill() - 4
-        };
+        rootLayout.Add(_header, _menu, _footer);
 
-        _footer = new Label("↑/↓ select  Enter open/exec  Esc back  Q quit")
-        {
-            X = 1,
-            Y = Pos.AnchorEnd(1),
-            Width = Dim.Fill() - 2,
-            Height = 1
-        };
-
-        _list.OpenSelectedItem += _ => ActivateSelected();
-        _list.KeyPress += OnKeyPress;
-
-        _window.Add(_header, _list, _footer);
+        _window.Add(rootLayout);
         Application.Top.Add(_window);
+
+        _menu.SetFocus();
     }
 
 
     private void RenderPage(MenuPage page)
     {
         _window.Title = page.Title;
-        _header.Text = $" {page.Title}";
+        _header.Text = page.Title;
 
-        var items = page.GetItems().ToList();
+        List<MenuItem>? items = page.GetItems().ToList();
 
-        // Add Back/Quit consistantly (instead of the current Conditional logic)
         if (_nav.CanGoBack)
-            items.Insert(0, new MenuItem { Label = "← Back", Action = new BackAction() });
+            items.Add(new MenuItem
+            {
+                Label = "← Back",
+                Action = new BackAction()
+            });
 
-        items.Add(new MenuItem { Label = "Quit", Action = new QuitAction()});
+        else
+            items.Add(new MenuItem
+            {
+                Label = "Quit",
+                Action = new QuitAction()
+            });
 
         _currentItems = items;
 
-        _list.SetSource(items.Select(item => item.Enabled ? item.Label : $"{item.Label} (disabled)").ToList());
-        _list.SelectedItem = 0;
+        var labels = items.Select(i => i.Label).ToList();
+        var disabledIndexes = items
+            .Select((item, index) => (item, index))
+            .Where(x => !x.item.Enabled)
+            .Select(x => x.index)
+            .ToList();
+
+        _menu.SetItems(labels, disabledIndexes);
     }
 
-    private void ActivateSelected()
+    private void ActivateSelected(int index)
     {
-        int idx = _list.SelectedItem;
-        if (idx < 0 || idx >= _currentItems.Count)
+        if (index < 0 || index >= _currentItems.Count)
             return;
 
-        var item = _currentItems[idx];
+        var item = _currentItems[index];
         if (!item.Enabled)
             return;
+
         item.Action?.Execute(_nav);
     }
 
@@ -118,6 +141,4 @@ public sealed class MenuApp
             _nav.Quit();
         }
     }
-
-    
 }

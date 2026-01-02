@@ -1,21 +1,31 @@
 ﻿using TimeTracker.UI.MenuSystem;
 using TimeTracker.UI.MenuSystem.Actions;
-using TimeTracker.UI.MenuSystem.Interface;
 
 namespace TimeTracker;
-
-using TimeTracker.UI.MenuSystem;
 
 internal static class Program
 {
     private static void Main()
     {
+        var aboutPage = new MenuPage
+        {
+            Title = "About",
+            Items =
+            [
+                new MenuItem
+                {
+                    Label = "Version",
+                    Action = new MessageAction("ConsoleTimeTrackingApp", "Version 0.1")
+                }
+            ]
+        };
+
         var root = new MenuPage
         {
             Title = "Main Menu",
             Items =
             [
-                new MenuItem { Label = "Quit", Action = new QuitAction() }
+                new MenuItem { Label = "About", Action = new NavigateAction(aboutPage) }
             ]
         };
 
